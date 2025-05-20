@@ -1,28 +1,14 @@
-from pydantic_settings import BaseSettings
-from typing import Optional
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "FastAPI Template"
-    VERSION: str = "1.0.0"
-    API_V1_STR: str = "/api/v1"
-    
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "app"
-    POSTGRES_PORT: str = "5432"
-    
-    DATABASE_URL: Optional[str] = None
-    
-    @property
-    def get_database_url(self) -> str:
-        if self.DATABASE_URL:
-            return self.DATABASE_URL
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-    
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+    DATABASE_URL: str
+    JWT_SECRET: str
+    JWT_ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-settings = Settings()
 
+Config = Settings()

@@ -1,15 +1,15 @@
+from sqlmodel import Field, SQLModel,Column
+import sqlalchemy.dialects.postgresql as pg
 from datetime import datetime
-from typing import Optional
-from sqlmodel import SQLModel, Field
 import uuid
 
 class User(SQLModel, table=True):
-    __tablename__ = "users"
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    first_name: str = Field(nullable=False)
-    last_name: str = Field(nullable=False)
-    email: str = Field(unique=True, index=True, nullable=False)
-    password: str = Field(nullable=False)
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: Optional[datetime] = Field(default=None)
-    
+    id: uuid.UUID = Field(sa_column=Column(pg.UUID, primary_key=True, default=uuid.uuid4))
+    first_name: str = Field(sa_column=Column(pg.VARCHAR(255), nullable=False))
+    last_name: str = Field(sa_column=Column(pg.VARCHAR(255), nullable=False))
+    username: str = Field(sa_column=Column(pg.VARCHAR(255), unique=True, nullable=False))
+    email: str = Field(sa_column=Column(pg.VARCHAR(255), unique=True, nullable=False))
+    password: str = Field(exclude=True)
+    is_verified: bool = Field(sa_column=Column(pg.BOOLEAN, default=False))
+    created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now()))
+    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now()))

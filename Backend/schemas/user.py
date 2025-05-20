@@ -1,57 +1,51 @@
-from pydantic import BaseModel, EmailStr, constr, field_validator
-from datetime import datetime
-from typing import Optional
 import uuid
-import re
+from datetime import datetime
+from typing import List
+from pydantic import BaseModel, Field
+class UserCreateModel(BaseModel):
+    first_name: str = Field(max_length=25)
+    last_name: str = Field(max_length=25)
+    username: str = Field(max_length=8)
+    email: str = Field(max_length=40)
+    password: str = Field(min_length=6)
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "first_name": "John",
+                "last_name": "Doe",
+                "username": "johndoe",
+                "email": "johndoe123@co.com",
+                "password": "testpass123",
+            }
+        }
+    }
 
-class UserBase(BaseModel):
+
+class UserModel(BaseModel):
+    id: uuid.UUID
+    username: str
+    email: str
     first_name: str
     last_name: str
-    email: EmailStr
-
-class UserCreate(UserBase):
-    password: str
-    
-    @field_validator('password')
-    def password_validation(cls, v):
-        if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long')
-        if not re.search(r'[A-Z]', v):
-            raise ValueError('Password must contain at least one uppercase letter')
-        if not re.search(r'[a-z]', v):
-            raise ValueError('Password must contain at least one lowercase letter')
-        if not re.search(r'[0-9]', v):
-            raise ValueError('Password must contain at least one number')
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', v):
-            raise ValueError('Password must contain at least one special character')
-        return v
-
-class UserRead(UserBase):
-    id: uuid.UUID
+    is_verified: bool
+    password: str = Field(exclude=True)
     created_at: datetime
-    updated_at: Optional[datetime] = None
+    updated_at: datetime
 
-    class Config:
-        orm_mode = True
 
-class UserProfileUpdate(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[EmailStr] = None
+class UserLoginModel(BaseModel):
+    email: str = Field(max_length=40)
+    password: str = Field(min_length=6)
 
-class UserPasswordUpdate(BaseModel):
-    password: str
-    
-    @field_validator('password')
-    def password_validation(cls, v):
-        if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long')
-        if not re.search(r'[A-Z]', v):
-            raise ValueError('Password must contain at least one uppercase letter')
-        if not re.search(r'[a-z]', v):
-            raise ValueError('Password must contain at least one lowercase letter')
-        if not re.search(r'[0-9]', v):
-            raise ValueError('Password must contain at least one number')
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', v):
-            raise ValueError('Password must contain at least one special character')
-        return v
+
+class EmailModel(BaseModel):
+    addresses : List[str]
+
+
+class PasswordResetRequestModel(BaseModel):
+    email: str
+
+
+class PasswordResetConfirmModel(BaseModel):
+    new_password: str
+    confirm_new_password: str
